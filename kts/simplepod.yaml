@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: webserver
+spec:
+  imagePullSecrets:
+  - name: artifact-registry 
+  containers:
+  - name: webserver
+    image: us-east1-docker.pkg.dev/task-project-374915/argotestrepo/image_my_repo:latest
+    imagePullPolicy: Always 
+    ports:
+    - containerPort: 80
+

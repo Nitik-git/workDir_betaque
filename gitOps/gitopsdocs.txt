@@ -1,0 +1,50 @@
+GitOps is a way of implementing Continuous Deployment for cloud native applications
+
+Usually, all the codes(Terraform code, Ansible code, Kubernetes manifest files, YAML files) are stored in Git(GitHub, Gitlab, AWS code commit, etc.) for a distributed access. Any developer who has access to the Git repo can download and modify the code as per their need and push the code to the same Git repo.
+
+
+The developer will create code and test the code locally. If the test is passed then the code is moved to the production. There are many problems are caused by this approach.
+
+If there is no CD pipeline, then you have to share the production server details to the developers. It will cause security problem. 
+
+NOW..here gitops comes in,
+All the code is stored in Git with the approval process.
+
+
+
+
+
+The core idea of GitOps is having a Git repository that always contains declarative descriptions of the infrastructure currently desired in the production environment and an automated process to make the production environment match the described state in the repository. 
+
+
+
+
+
+
+To solve the problem with simple Iac following needs to be implemented with the IaC.
+
+1. Review or approval process
+
+2. Pull request(merge request)
+
+3. Automated test
+
+4. CD pipeline 
+
+
+Simply add the above four points with your IaC, then it is called GitOps.
+
+
+
+
+
+
+
+
+GitOps is like DevOps. All the code is stored in Git with the approval process. 
+
+
+
+
+
+link for dev gadvi : https://www.devgadhvi10x.com/passion-workshop-yt?https%3A%2F%2Fwww.devgadhvi10x.com%2Fpassion-workshop-yt%2F%3Fcampaignid=19631638698&id=5&ps_ca=19631638698&ps_adg=143572805937&gclid=CjwKCAjwq-WgBhBMEiwAzKSH6OpMPDLRLzBnvMqGklcY5BOk219069-lKTMuKTKKsMmVMGDm9ZrVSxoC4zgQAvD_BwE

@@ -1,0 +1,297 @@
+----------------------------------------------
+opencost setup
+----------------------------------------------
+
+
+------
+Install Prometheus
+------
+
+kubectl create namespace openprom
+
+helm install my-prometheus --repo https://prometheus-community.github.io/helm-charts prometheus \
+  --namespace opencost \
+  --set pushgateway.enabled=false \
+  --set alertmanager.enabled=false \
+  -f https://raw.githubusercontent.com/opencost/opencost/develop/kubernetes/prometheus/extraScrapeConfigs.yaml
+  
+  
+  
+  
+------
+Install Opencost
+------  
+kubectl create namespace opencost
+
+kubectl apply --namespace opencost -f https://raw.githubusercontent.com/opencost/opencost/develop/kubernetes/opencost.yaml
+
+
+
+--------------------------------------------------
+aws setup
+--------------------------------------------------
+
+To set credentials to access aws cli
+aws configure
+
+Select your eks cluster
+Add new context of aws
+aws eks --region us-east-1 update-kubeconfig --name open-cluster
+
+
+
+
+
+
+$ eksctl utils associate-iam-oidc-provider --cluster=open-cluster --region us-east-1 --approve
+
+
+
+----------------------------------------------------------------------
+
+helm install my-prometheus --repo https://prometheus-community.github.io/helm-charts prometheus \
+  --namespace opencost \
+  --set pushgateway.enabled=false \
+  --set alertmanager.enabled=false \
+  -f https://raw.githubusercontent.com/opencost/opencost/develop/kubernetes/prometheus/extraScrapeConfigs.yaml
+
+
+
+
+
+
+
+
+
+
+
+aws eks create-addon --cluster-name open-cluster --addon-name aws-ebs-csi-driver \
+  --service-account-role-arn arn:aws:iam::811382159023:role/AmazonEKS_EBS_CSI_DriverRole
+
+
+
+your cluster's OIDC provider URL
+aws eks describe-cluster \
+  --name open-cluster \
+  --query "cluster.identity.oidc.issuer" \
+  --output text
+
+
+-------------------------------------------------------------------------------------------------------------------
+How do I use persistent storage in Amazon EKS?
+
+Deploy and test the Amazon EBS CSI driver
+
+
+
+curl -o example-iam-policy.json https://raw.githubusercontent.com/kubernetes-sigs/aws-ebs-csi-driver/v0.9.0/docs/example-iam-policy.json
+
+
+
+aws iam create-policy --policy-name AmazonEKS_EBS_CSI_Driver_Policy --policy-document file://example-iam-policy.json
+
+
+
+aws eks describe-cluster --name open-cluster --query "cluster.identity.oidc.issuer" --output text
+o/p :- https://oidc.eks.us-east-1.amazonaws.com/id/0293E964A7320B4118E27DD507BC945E
+       https://oidc.eks.us-east-1.amazonaws.com/id/0293E964A7320B4118E27DD507BC945E
+       
+
+ Create the following IAM trust policy file:
+
+cat <<EOF > trust-policy.json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "arn:aws:iam::906105182569:oidc-provider/oidc.eks.us-east-1.amazonaws.com/id/https://oidc.eks.us-east-1.amazonaws.com/id/0293E964A7320B4118E27DD507BC945E"
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {
+        "StringEquals": {
+          "oidc.eks.us-east-1.amazonaws.com/id/https://oidc.eks.us-east-1.amazonaws.com/id/0293E964A7320B4118E27DD507BC945E:sub": "system:serviceaccount:opencost:ebs-csi-controller-sa"
+        }
+      }
+    }
+  ]
+}
+EOF
+
+
+
+create iam role
+aws iam create-role \
+  --role-name AmazonEKS_EBS_CSI_DriverRole \
+  --assume-role-policy-document file://"trust-policy.json"
+      
+o/p:-
+{
+    "Role": {
+        "Path": "/",
+        "RoleName": "AmazonEKS_EBS_CSI_DriverRole",
+        "RoleId": "AROA5F6AT3FUYFMLYFTWR",
+        "Arn": "arn:aws:iam::906105182569:role/AmazonEKS_EBS_CSI_DriverRole",
+        "CreateDate": "2023-03-16T13:54:51+00:00",
+        "AssumeRolePolicyDocument": {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Effect": "Allow",
+                    "Principal": {
+                        "Federated": "arn:aws:iam::906105182569:oidc-provider/oidc.eks.us-east-1.amazonaws.com/id/https://oidc.eks.us-east-1.amazonaws.com/id/0293E964A7320B4118E27DD507BC945E"
+                    },
+                    "Action": "sts:AssumeRoleWithWebIdentity",
+                    "Condition": {
+                        "StringEquals": {
+                            "oidc.eks.us-east-1.amazonaws.com/id/https://oidc.eks.us-east-1.amazonaws.com/id/0293E964A7320B4118E27DD507BC945E:sub": "system:serviceaccount:opencost:ebs-csi-controller-sa"
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}
+     
+
+
+attach policy to role
+aws iam attach-role-policy \
+--policy-arn arn:aws:iam::906105182569:policy/AmazonEKS_EBS_CSI_Driver_Policy \
+--role-name AmazonEKS_EBS_CSI_DriverRole       
+       
+  
+deploy the Amazon EBS CSI driver
+kubectl apply -k "github.com/kubernetes-sigs/aws-ebs-csi-driver/deploy/kubernetes/overlays/stable/?ref=master"
+
+       
+       
+       
+       
+       
+       
+       
+       
+       
+       
+       
+       
+       
+to delete aws iam role
+aws iam delete-role --role-name AmazonEKS_EBS_CSI_DriverRole
+
+detach policy
+aws iam detach-role-policy --role-name AmazonEKS_EBS_CSI_DriverRole --policy-arn arn:aws:iam::906105182569:policy/AmazonEKS_EBS_CSI_Driver_Policy 
+
+
+Create the following IAM trust policy file
+cat <<EOF > trust-policy.json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "arn:aws:iam::906105182569:oidc-provider/oidc.eks.us-east-1.amazonaws.com/id/<XXXXXXXXXX45D83924220DC4815XXXXX>"
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {
+        "StringEquals": {
+          "oidc.eks.YOUR_AWS_REGION.amazonaws.com/id/https://oidc.eks.us-east-1.amazonaws.com/id/0293E964A7320B4118E27DD507BC945E:sub": "system:serviceaccount:kube-system:ebs-csi-controller-sa"
+        }
+      }
+    }
+  ]
+}
+EOF
+
+
+Create an IAM role
+aws iam create-role \
+  --role-name AmazonEKS_EBS_CSI_DriverRole \
+  --assume-role-policy-document file://"trust-policy.json"
+o/p:- 
+{
+    "Role": {
+        "Path": "/",
+        "RoleName": "AmazonEKS_EBS_CSI_DriverRole",
+        "RoleId": "AROA5F6AT3FU2WUL63W3X",
+        "Arn": "arn:aws:iam::906105182569:role/AmazonEKS_EBS_CSI_DriverRole",
+        "CreateDate": "2023-03-16T13:16:21+00:00",
+        "AssumeRolePolicyDocument": {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Effect": "Allow",
+                    "Principal": {
+                        "Federated": "arn:aws:iam::906105182569:oidc-provider/oidc.eks.us-east-1.amazonaws.com/id/<XXXXXXXXXX45D83924220DC4815XXXXX>"
+                    },
+                    "Action": "sts:AssumeRoleWithWebIdentity",
+                    "Condition": {
+                        "StringEquals": {
+                            "oidc.eks.YOUR_AWS_REGION.amazonaws.com/id/https://oidc.eks.us-east-1.amazonaws.com/id/0293E964A7320B4118E27DD507BC945E:sub": "system:serviceaccount:kube-system:ebs-csi-controller-sa"
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}
+
+
+Attach your new IAM policy to the role:
+aws iam attach-role-policy \
+--policy-arn arn:aws:iam::906105182569:policy/AmazonEKS_EBS_CSI_Driver_Policy \
+--role-name AmazonEKS_EBS_CSI_DriverRole
+
+
+ To deploy the Amazon EBS CSI driver
+ 
+
+kubectl apply -k "github.com/kubernetes-sigs/aws-ebs-csi-driver/deploy/kubernetes/overlays/stable/?ref=master"
+
+
+ Annotate the ebs-csi-controller-sa Kubernetes service account with the Amazon Resource Name (ARN) of the IAM role that you created earlier
+ kubectl annotate serviceaccount ebs-csi-controller-sa \
+  -n kube-system \
+  eks.amazonaws.com/role-arn=arn:aws:iam::906105182569:role/AmazonEKS_EBS_CSI_DriverRole
+
+
+
+
+
+
+
+
+kubectl apply --namespace opencost -f https://raw.githubusercontent.com/opencost/opencost/develop/kubernetes/opencost.yaml
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--------------------------------------------------------
+Storage class
+--------------------------------------------------------
+What Is Kubernetes StorageClass? A Kubernetes StorageClass is a Kubernetes storage mechanism that lets you dynamically provision persistent volumes (PV) in a Kubernetes cluster. Kubernetes administrators define classes of storage, and then pods can dynamically request the specific type of storage they need.
+
+
+--------------------------------------------------------
+NAMESPACE
+--------------------------------------------------------
+setting up namespace preference
+kubectl config set-context --current --namespace=opencost
+
+check current namespace
+kubectl config view --minify | grep namespace:

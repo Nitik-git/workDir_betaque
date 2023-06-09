@@ -1,0 +1,104 @@
+grafana username : admin
+passwd : dtKMtbZWXy328NtUZj7dSjDD7DjTTTfpE1JDu0AI         // kubectl get secret --namespace pg grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+
+telegram id : 
+telegram api token : 
+6167343022:AAEX-ExvVKrwfdrEpNhR5FekXTPhfnwplRY
+
+
+
+{{ define "mymessage "}}
+  {{ if gt (len .Alerts.Firing) 0 }}
+    {{ len .Alerts.Firing }} firing:
+    {{ range .Alerts.Firing }} {{ template "myalert" .}} {{ end }} {{ range .Alerts.Firing}} {{ template "myalert".}} {{ end }} 
+  {{ end }}
+{{ if gt (len .Alerts.Resolved) 0 }}
+  {{ len .Alerts.Resolved }} resolved:
+  {{ range .Alerts.Resolved }} {{ template "myalert" .}} {{ end }} {{ range .Alerts.Resolved }} {{ template "myalert" .}} {{ end }} 
+  {{ end }}
+{{ end }}
+
+
+
+{{ define "telegram.message" }}
+    {{ if gt (len .Alerts.Firing) 0 }}
+    🚨 <b>ALARM</b> (#{{ .Alerts.Firing | len }})
+      Summary: {{ template "mytemplate" . }}                                 //{{ .Annotations.summary}}
+      Description: {{ .Annotations.description }}
+    {{- template "__alerts_list" .Alerts.Firing }}{{ end -}}
+    {{ if gt (len .Alerts.Resolved) 0 }}
+    ✅ <b>RESOLVED</b>{{ template "__telegram.title" . }} (#{{ .Alerts.Resolved | len }})
+      Summary: {{ template "mytemplate" . }} 
+      Description: {{ .Annotations.description }}
+    {{- template "__alerts_list" .Alerts.Resolved }}{{ end }}
+{{ end }}
+
+
+{{ template "default.message" .}}
+
+
+
+
+{{ define "telegram.message" }}
+    {{ if gt (len .Alerts.Firing) 0 }}
+    🚨 <b>ALARM</b> (#{{ .Alerts.Firing | len }})
+      Summary: 
+       {{ range .Alerts.Firing }} 
+       {{ .Annotations.summary }} 
+       {{ end }}
+      Description:
+       {{ range .Alerts.Firing }} 
+       {{ .Annotations.description }} 
+       {{ end }}
+    {{- template "__alerts_list" .Alerts.Firing }}{{ end -}}
+    {{ if gt (len .Alerts.Resolved) 0 }}
+    ✅ <b>RESOLVED</b> (#{{ .Alerts.Resolved | len }})
+      Summary: 
+       {{ range .Alerts.Resolved }} 
+       {{ .Annotations.summary }} 
+       {{ end }}
+      Description: 
+       {{ range .Alerts.Resolved }} 
+       {{ .Annotations.description }} 
+       {{ end }}
+    {{- template "__alerts_list" .Alerts.Resolved }}{{ end }}
+{{ end }}
+
+
+      /* Summary: 
+       {{ range .Alerts.Resolved }} 
+       [OK] Instance {{ index $labels "instance" }}
+       {{ end }} */
+       
+       
+       
+ kubelet_volume_stats_capacity_bytes
+ 
+ last visited link :
+ https://stackoverflow.com/questions/71074543/monitoring-pvc-usage-with-prometheus
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ volumeMounts
+ - name: alerting
+        mountPath: "/etc/grafana/provisioning/alerting/rules.yaml"
+        subPath: rules.yaml
+      - name: alerting
+        mountPath: "/etc/grafana/provisioning/alerting/contactpoints.yaml"
+        subPath: contactpoints.yaml  
+        
+volumes:
+  - name: alerting
+    configMap:
+      name: grafana-alerting

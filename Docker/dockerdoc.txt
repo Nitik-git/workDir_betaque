@@ -1,0 +1,15 @@
+
+
+docker container create image_name
+
+docker images, docker ps , docker ps -a
+
+docker tag current_img_name:tag_name dockerrepo/img_name:tag_name_on_hub
+docker push dockerrepo/img_name:tag_name_on_hub
+
+
+
+
+You can push a new image to this repository using the CLI
+docker tag local-image:tagname new-repo:tagname
+docker push new-repo:tagname

@@ -1,0 +1,12 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: fluentd-elasticsearch
+  namespace: kube-system
+  labels:
+    k8s-app: fluentd-logging
+spec:
+  containers:
+    - name: fluentd-elasticsearch
+      image: quay.io/fluentd_elasticsearch/fluentd:v2.5.2
+        

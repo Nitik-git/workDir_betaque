@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: webserver
+spec:
+  imagePullSecrets:
+  - name: artifact-registry 
+  containers:
+  - name: webserver
+    image: nginx
+    imagePullPolicy: Always 
+    ports:
+    - containerPort: 80
+

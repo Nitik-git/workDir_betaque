@@ -1,0 +1,2 @@
+Changes on remote present & I WANT TO PUSH SOME NEW CODE
+link: https://www.cyberithub.com/solved-fatal-need-to-specify-how-to-reconcile-divergent-branches/

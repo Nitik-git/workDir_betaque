@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: php
+  labels:
+    app: php
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: php
+  template:
+    metadata:
+      labels:
+        app: php
+    spec:
+      containers:
+      - name: php
+        image: php:8-apache
+        ports:
+        - containerPort: 80
+        volumeMounts:
+          - name: test-volume
+            mountPath: /var/www/html
+      volumes:
+        - name: test-volume
+          hostPath:
+            path: /php-app-data
+            type: Directory

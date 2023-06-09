@@ -1,0 +1,11 @@
+bases:
+  - ../../objects
+# patches:
+#   - replica_count.yaml    # apn ne abhi itna sb nhi lagaya hai but fine smjh le
+#   - resource_limit.yaml
+configMapGenerator:
+  - name: example-config
+    namespace: kustomize
+    behavior: replace
+    files:
+      - configs/config.json

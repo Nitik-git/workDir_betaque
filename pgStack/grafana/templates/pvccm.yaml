@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: persistent-volumes
+  labels:
+    grafana_dashboard: "1"
+data:
+  kubernetes.json: |
+    {{ .Files.Get "./dashboards/kubernetes-persistent-volumes_rev2.json" | indent 4 }}

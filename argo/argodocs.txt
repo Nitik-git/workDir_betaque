@@ -1,0 +1,336 @@
+link: https://github.com/dewan-ahmed/argocd-applicationset-demo
+
+
+
+
+
+
+
+
+-----------------------------------------------------------------------
+command to get secret
+kubectl get secrets/argocd-initial-admin-secret -n argocd --template={{.data.password}} | base64 -d
+------------------------------------------------------------------------
+
+Argo CD is a declarative, GitOps continuous delivery tool for Kubernetes.
+
+-----------
+ARGO helm repo
+-----------
+helm repo add argo https://argoproj.github.io/argo-helm
+
+helm install my-release argo/argo-cd -n argocd
+
+-------
+github token
+        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
+-------
+
+--------------
+admin password
+hMP0WKniiE08hPJG
+
+nitik password
+patidar23nitik
+argocd account generate-token --account nitik --id nitik  
+output token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJhcmdvY2QiLCJzdWIiOiJuaXRpazphcGlLZXkiLCJuYmYiOjE2Nzk2NDAwODAsImlhdCI6MTY3OTY0MDA4MCwianRpIjoibml0aWsifQ.C8fGZSB8XFm7ZMRUIx59qdVil2rQVX7NHluZFpws2qw
+	
+argocd_token
+ZXlKaGJHY2lPaUpJVXpJMU5pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SnBjM01pT2lKaGNtZHZZMlFpTENKemRXSWlPaUp1YVhScGF6cGhjR2xMWlhraUxDSnVZbVlpT2pFMk56azJOREF3T0RBc0ltbGhkQ0k2TVRZM09UWTBNREE0TUN3aWFuUnBJam9pYm1sMGFXc2lmUS5DOGZHWlNCOFhGbTdaTVJVSXg1OXFkVmlsMnJRVlg3TkhsdVpGcHdzMnF3
+--------------
+
+
+argocd account update-password \
+  --account nitik \
+  --current-password FlOotOdRkkR1obqP \
+  --new-password patidar23nitik
+  
+  
+  
+------------
+Argocd admin login
+-----------
+argocd login localhost:8080 --username admin --password Gy2giJp5DU-Hz3Rk
+warning:- server certificate had error: x509: certificate signed by unknown authority. Proceed insecurely (y/n)?
+
+
+-----------------------
+RBAC configurations
+link : https://argo-cd.readthedocs.io/en/stable/operator-manual/rbac/
+link: https://rtfm.co.ua/en/argocd-users-access-and-rbac/
+-----------------------
+
+---------------------------------------------------
+NOTIFICATION
+---------------------------------------------------
+link: https://blog.argoproj.io/notifications-for-argo-bb7338231604
+
+Create secret for email username and password
+export EMAIL_USER=nitik23patidar@gmail.com
+export PASSWORD=Vyankatesh
+kubectl apply -n argocd -f - << EOF
+apiVersion: v1
+kind: Secret
+metadata:
+  name: argocd-notifications-secret
+stringData:
+  email-username: $EMAIL_USER
+  email-password: $PASSWORD
+type: Opaque
+EOF
+
+
+kubectl patch cm argocd-notifications-cm -n argocd --type merge -p '{"data": {"service.email.gmail": "{ username: $email-username, password: $email-password, host: smtp.gmail.com, port: 465, from: $email-username }" }}'
+
+
+
+
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/notifications_catalog/install.yaml
+
+Install Triggers and Templates from the catalog
+kubectl apply -f https://raw.githubusercontent.com/argoproj-labs/argocd-notifications/release-1.0/catalog/install.yaml
+
+
+
+
+
+
+
+
+
+----------------------------------
+Deploy n applications to n kubernetes clusters
+-----------------------------------
+link :- https://www.youtube.com/watch?v=VIaKOelZzn4
+
+cluster syncing : USing overlay with kustomise
+------------------------------------------
+Image Updater
+--------------------------------------------
+install image updater
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj-labs/argocd-image-updater/stable/manifests/install.yaml
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$NOT REQUIRED
+Configure API access token secret
+kubectl create secret generic argocd-image-updater-secret \
+  --from-literal argocd.token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJhcmdvY2QiLCJzdWIiOiJuaXRpazphcGlLZXkiLCJuYmYiOjE2Nzk2NDAwODAsImlhdCI6MTY3OTY0MDA4MCwianRpIjoibml0aWsifQ.C8fGZSB8XFm7ZMRUIx59qdVil2rQVX7NHluZFpws2qw --dry-run -o yaml |
+  kubectl apply -f -
+  
+#Running locally
+export ARGOCD_TOKEN=ZXlKaGJHY2lPaUpJVXpJMU5pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SnBjM01pT2lKaGNtZHZZMlFpTENKemRXSWlPaUp1YVhScGF6cGhjR2xMWlhraUxDSnVZbVlpT2pFMk56azJOREF3T0RBc0ltbGhkQ0k2TVRZM09UWTBNREE0TUN3aWFuUnBJam9pYm1sMGFXc2lmUS5DOGZHWlNCOFhGbTdaTVJVSXg1OXFkVmlsMnJRVlg3TkhsdVpGcHdzMnF3
+./argocd-image-updater run \
+  --kubeconfig ~/.kube/config
+  --once
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$  
+
+LOGIN DOCKER BY SERVICE ACCOUNT TO GAR
+cat task-project-374915-82fbfbe61016.json | docker login -u _json_key --password-stdin \
+https://us-east1-docker.pkg.dev
+
+
+
+Specifying Git credentials
+argocd-image-updater.argoproj.io/write-back-method: git:secret:argocd/git-creds
+
+kubectl create secret generic git-creds \
+  --from-literal=username=Nitik-git \
+  --from-literal=password=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  
+  
+
+kubectl create secret docker-registry dockerhub-secret \
+  --docker-username nitikjumbo \
+  --docker-password Nikky@2019 \
+  --docker-registry https://hub.docker.com/repository/docker/nitikjumbo/my_repo/general
+
+registries.conf: |
+    registries:
+    - name: Docker Hub
+      prefix: docker.io
+      api_url: https://hub.docker.com/repositories/nitikjumbo
+      credentials: secret:dockerhub-secret
+      default: true  
+
+
+argocd-image-updater.argoproj.io/image-list:nitikjumbo/my_repo
+
+
+kubectl
+create secret generic gitlab-token \
+-from-literal=username=Nitik-git \
+--from-literal=password=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
+
+
+
+
+******************************27/03/23************************
+argocd image-updater  dockerhub
+******************************27/03/23************************
+link: https://argocd-image-updater.readthedocs.io/en/v0.6.1/install/start/
+link: https://www.opsmx.com/blog/how-to-enable-ci-cd-with-argo-cd-and-jenkins/
+
+argocd account generate-token --account image-updater-user --id image-updater
+o/p:- eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJhcmdvY2QiLCJzdWIiOiJpbWFnZS11cGRhdGVyLXVzZXI6YXBpS2V5IiwibmJmIjoxNjc5ODk2MDgxLCJpYXQiOjE2Nzk4OTYwODEsImp0aSI6ImltYWdlLXVwZGF0ZXIifQ.rsrfXxmT3eR4CAoePeHEJXyqf2-SfglTl2_PZP-Gje8
+
+application annotation
+    argocd-image-updater.argoproj.io/image-list: docker.io/nitikjumbo/my_repo           
+    argocd-image-updater.argoproj.io/write-back-method: git:secret:argocd/git-creds
+    argocd-image-updater.argoproj.io/git-branch: main
+    argocd-image-updater.argoproj.io/myalias.force-update: "true"
+
+
+Create git credential secret file
+kubectl create secret generic git-creds --from-literal=username=Nitik-git --from-literal=password=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
+
+create a secret for image-updater to communicate with the Argo CD application. 
+kubectl create secret generic argocd-image-updater-secret \
+--from-literal argocd.token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJhcmdvY2QiLCJzdWIiOiJpbWFnZS11cGRhdGVyLXVzZXI6YXBpS2V5IiwibmJmIjoxNjc5ODk2MDgxLCJpYXQiOjE2Nzk4OTYwODEsImp0aSI6ImltYWdlLXVwZGF0ZXIifQ.rsrfXxmT3eR4CAoePeHEJXyqf2-SfglTl2_PZP-Gje8 --dry-run -o yaml |
+kubectl -n argocd apply -f -
+
+
+Get logs
+kubectl logs --selector app.kubernetes.io/name=argocd-image-updater --follow
+
+secret for Docker Hub named dockerhub-secret
+kubectl create secret docker-registry dockerhub-secret \
+  --docker-username nitikjumbo \
+  --docker-password Nikky@2019 \
+  --docker-server "https://hub.docker.com/repository/docker/nitikjumbo/my_repo/general" \
+  --docker-email "nitik23patidar@gmail.com"
+
+
+
+
+******************************31/03/23************************
+argocd image-updater : apikey
+******************************31/03/23************************
+link: https://visionsincode.com/2023/02/11/argo-cd-image-updater-will-make-your-gitops-life-easier-for-your-sitecore-setup-in-kubernetes/
+
+
+argocd account generate-token --account image-updater --id image-updaterkgp
+o/p: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJhcmdvY2QiLCJzdWIiOiJpbWFnZS11cGRhdGVyOmFwaUtleSIsIm5iZiI6MTY4MDI0MDA1OCwiaWF0IjoxNjgwMjQwMDU4LCJqdGkiOiJpbWFnZS11cGRhdGVya2dwIn0.PM94o7jCz8HTZUtI4a8Ek2b4skKIuypuCJYq9va92Jg
+
+argocd image updater config 
+data :
+  argocd.server_addr: 10.244.0.190
+  argocd.grpc_web: true
+  argocd.insecure: true
+  argocd.plaintext: true
+  
+restart argocd image updater
+kubectl -n argocd-image-updater rollout restart deployment argocd-image-updater
+
+
+argocd-image-updater.argoproj.io/write-back-target: kustomization
+
+
+
+
+
+
+
+#############################################
+i. argocd install
+ii. argocd image updater 
+3. put annotations to application crd
+    argocd-image-updater.argoproj.io/git-branch: master
+    argocd-image-updater.argoproj.io/image-list: myalias=docker.io/nitikjumbo/my_repo:~v8
+    argocd-image-updater.argoproj.io/myalias.force-update: "true"
+    argocd-image-updater.argoproj.io/myalias.update-strategy: semver
+    argocd-image-updater.argoproj.io/write-back-method: git:secret:argocd/git-creds
+
+4. remember: for argocd image updater 
+ArgoCD applications must be of either Kustomize or Helm type. 
+#############################################
+
+ARTIFACT REGISTRY:
+
+link: https://cloud.google.com/artifact-registry/docs/docker/pushing-and-pulling
+link: https://support.count.ly/hc/en-us/articles/4698120212889-Docker-and-Kubernetes-Connecting-to-Private-Artifact-Registry-and-Pulling-Images-with-Authentication-Plugin-Packages
+link: https://visionsincode.com/2023/02/11/argo-cd-image-updater-will-make-your-gitops-life-easier-for-your-sitecore-setup-in-kubernetes/
+link: https://www.tkat0.dev/en/posts/issue-of-argocd-image-updater-with-local-registry/
+link: https://garden.io/blog/argo-cd-helm-charts
+
+AUTHENTICATION FROM ARTIFACT REGISTRY
+kubectl create secret docker-registry artifact-registry \
+  --docker-username=_json_key  \
+  --docker-password "$(cat task-project-374915-82fbfbe61016.json)" \
+  --docker-server https://us-east1-docker.pkg.dev \
+  --docker-email svcacc-dockergar@task-project-374915.iam.gserviceaccount.com
+
+ANNOTATIONS in APPLICATION
+ annotations:
+    argocd-image-updater.argoproj.io/git-branch: master
+    argocd-image-updater.argoproj.io/image-list: myalias=us-east1-docker.pkg.dev/task-project-374915/repoforargo/nginxargo
+    argocd-image-updater.argoproj.io/myalias.force-update: "true"
+    argocd-image-updater.argoproj.io/myalias.helm.image-name: image.name
+    argocd-image-updater.argoproj.io/myalias.helm.image-tag: image.tag
+    argocd-image-updater.argoproj.io/myalias.pull-secret: pullsecret:argocd/artifact-registry
+    argocd-image-updater.argoproj.io/myalias.update-strategy: latest
+    argocd-image-updater.argoproj.io/write-back-method: git:secret:argocd/git-creds
+    argocd-image-updater.argoproj.io/write-back-target: git
+        kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"argoproj.io/v1alpha1","kind":"Application","metadata":{"annotations":{"argocd-image-updater.argoproj.io/git-branch":"main","argocd-image-updater.argoproj.io/image-list":"docker.io/nitikjumbo/my_repo","argocd-image-updater.argoproj.io/myalias.force-update":"true","argocd-image-updater.argoproj.io/write-back-method":"git:secret:argocd/git-creds"},"name":"test","namespace":"argocd"},"spec":{"destination":{"namespace":"argocd","server":"https://kubernetes.default.svc"},"project":"default","source":{"helm":{"valueFiles":["values.yaml"]},"path":"mychart","repoURL":"https://github.com/Nitik-git/argocd-by-helm.git","targetRevision":"HEAD"},"sources":[],"syncPolicy":{"automated":{"prune":true,"selfHeal":true}}}}
+    notifications.argoproj.io/subscribe.on-sync-succeeded.gmail: nitik23patidar@gmail.com
+
+
+data:
+  registries.conf: |
+    registries:
+    - name: Artifact Registry
+      prefix: gar.io
+      api_url: https://console.cloud.google.com/artifacts?project=task-project-374915
+      credentials: secret:foo/bar#creds
+      default: true
+      
+gcloud auth activate-service-account  actions-svc@task-project-374915.iam.gserviceaccount.com  --key-file=~/Downloads/serviceaccount.json
+
+
+gcloud auth print-access-token \
+  --impersonate-service-account  argocdsvc@task-project-374915.iam.gserviceaccount.com | docker login \
+  -u oauth2accesstoken \
+  --password-stdin https://us-east1-docker.pkg.dev
+  
+  docker pull us-east1-docker.pkg.dev/task-project-374915/argotestrepo/image_my_repo:latest
+
+
+-------------------------------------------------------------------------
+03/04/2023
+-------------------------------------------------------------------------
+kubectl apply -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+argocd admin initial-password
+o/p: hMP0WKniiE08hPJG
+
+argocd login localhost:8080 --username admin --password hMP0WKniiE08hPJG
+
+
+---------------------------------------------------------------
+04/03/2023 ApplicationSet
+---------------------------------------------------------------
+link: https://argo-cd.readthedocs.io/en/stable/user-guide/application-set/
+
+
+
+
+
+
+
+
+
+--------------------------------------------------------------------------------------
+KNOWLEDGE
+--------------------------------------------------------------------------------------
+ArgoCD is a Kubernetes-native continuous deployment (CD) tool. 
+Artifact Registry offers repository level access control.
+
+The Application CRD is the Kubernetes resource is defined by two key pieces of information: source (git) and destination (cluster)
+The AppProject CRD is the Kubernetes resource object representing a logical grouping of applications. 
+
+Projects provide a logical grouping of applications, which is useful when Argo CD is used by multiple teams like Devops, application, etc. Projects provide the following features
+
+Default Project
+Every application belongs to a single project. If unspecified, an application belongs to the default project, which is created automatically and by default, permits deployments from any source repo, to any cluster, and all resource Kinds.
+
+Additional projects can be created to give separate teams different levels of access to namespaces.
+ argocd proj create argocd-test-imageupdater-proj
+ -d https://kubernetes.default.svc,argocd -s https://github.com/Nitik-git/argocd-test-imageupdater.git
+

@@ -1,0 +1,10 @@
+link:
+
+Sealed secret - https://github.com/bitnami-labs/sealed-secrets#helm-chart
+-------------------
+if you are using Minikube, you can open a shell to your Node by entering minikube ssh
+-------------------
+cmds ===>
+
+kubectl api-resources
+
