@@ -8,117 +8,358 @@ data:
     apiVersion: 1
     groups:
       - orgId: 1
-        name: '{{ .Chart.Name }}_my_rule_group'
-        folder: my_first_folder
-        interval: 60s
+        name: alerting
+        folder: alerting
+        interval: 10s
         rules:
-          - uid: my_id_1
-            title: my_first_rule
-            condition: A
+          - uid: a1b2c3
+            title: pod_crashloop
+            condition: C
             data:
               - refId: A
-                datasourceUid: '-100'
+                relativeTimeRange:
+                  from: 300
+                  to: 0
+                datasourceUid: PADF034D3042AB33C
+                model:
+                  editorMode: code
+                  expr: increase(kube_pod_container_status_restarts_total[5m]) > 2
+                  hide: false
+                  intervalMs: 1000
+                  legendFormat: __auto
+                  maxDataPoints: 43200
+                  range: true
+                  refId: A
+              - refId: B
+                relativeTimeRange:
+                  from: 300
+                  to: 0
+                datasourceUid: __expr__
                 model:
                   conditions:
-                    - evaluator:
-                        params:
-                          - 3
-                        type: gt
-                      operator:
-                        type: and
-                      query:
-                        params:
-                          - A
-                      reducer:
-                        type: last
-                      type: query
+                      - evaluator:
+                          params:
+                              - 0
+                              - 0
+                          type: gt
+                        operator:
+                          type: and
+                        query:
+                          params: []
+                        reducer:
+                          params: []
+                          type: avg
+                        type: query
                   datasource:
-                    type: __expr__
-                    uid: '-100'
-                  expression: 1==0
+                      name: Expression
+                      type: __expr__
+                      uid: __expr__
+                  expression: A
                   intervalMs: 1000
                   maxDataPoints: 43200
-                  refId: A
-                  type: math
-            noDataState: Alerting
-            for: 60s
-            annotations:
-              some_key: some_value
-            labels:
-              team: sre_team_1
-          - uid: my_id_2
-            title: my_second_rule
-            condition: A
-            data:
-              - refId: A
-                datasourceUid: '-100'
+                  reducer: mean
+                  refId: B
+                  settings:
+                      mode: ""
+                  type: reduce
+              - refId: C
+                datasourceUid: __expr__
                 model:
                   conditions:
-                    - evaluator:
-                        params:
-                          - 3
-                        type: gt
-                      operator:
-                        type: and
-                      query:
-                        params:
-                          - A
-                      reducer:
-                        type: last
-                      type: query
+                      - evaluator:
+                          params:
+                              - 0
+                              - 0
+                          type: gt
+                        operator:
+                          type: and
+                        query:
+                          params: []
+                        reducer:
+                          params: []
+                          type: avg
+                        type: query
                   datasource:
-                    type: __expr__
-                    uid: '-100'
-                  expression: 1==0
+                      name: Expression
+                      type: __expr__
+                      uid: __expr__
+                  expression: $B > 0
+                  hide: false
                   intervalMs: 1000
                   maxDataPoints: 43200
-                  refId: A
+                  refId: C
                   type: math
-            noDataState: Alerting
-            for: 60s
+            noDataState: OK
+            execErrState: Alerting
+            for: 10s
             annotations:
-              some_key: some_value
+              description: |-
+                  Pod has been in crashloop state for longer than 5 minutes.  Namespace: {{ "{{" }}  $labels.namespace }}
+                  Pod: {{ "{{" }} $labels.pod }}
+              summary: Kubernetes Pod is crashlooping
             labels:
-              team: sre_team_2
+              pod_status: crashloop
+            isPaused: false
       - orgId: 1
-        name: '{{ .Chart.Name }}_my_second_rule_group'
-        folder: my_second_folder
-        interval: 60s
+        name: alerting
+        folder: alerting
+        interval: 10s
         rules:
-          - uid: my_id_3
-            title: my_third_rule
-            condition: A
+          - uid: b19ea9f8-c0f3-4e6c-ab0c-b99402710fcb
+            title: pod_health
+            condition: C
             data:
               - refId: A
-                datasourceUid: '-100'
+                relativeTimeRange:
+                  from: 300
+                  to: 0
+                datasourceUid: PADF034D3042AB33C
+                model:
+                  editorMode: code
+                  expr: (kube_pod_status_phase{phase=~"Pending|Unknown|Failed"}) > 0
+                  hide: false
+                  intervalMs: 1000
+                  legendFormat: __auto
+                  maxDataPoints: 43200
+                  range: true
+                  refId: A
+              - refId: B
+                relativeTimeRange:
+                  from: 300
+                  to: 0
+                datasourceUid: __expr__
                 model:
                   conditions:
-                    - evaluator:
-                        params:
-                          - 3
-                        type: gt
-                      operator:
-                        type: and
-                      query:
-                        params:
-                          - A
-                      reducer:
-                        type: last
-                      type: query
+                      - evaluator:
+                          params: []
+                          type: gt
+                        operator:
+                          type: and
+                        query:
+                          params:
+                              - B
+                        reducer:
+                          params: []
+                          type: last
+                        type: query
                   datasource:
-                    type: __expr__
-                    uid: '-100'
-                  expression: 1==0
+                      type: __expr__
+                      uid: __expr__
+                  expression: A
+                  hide: false
                   intervalMs: 1000
                   maxDataPoints: 43200
-                  refId: A
+                  reducer: last
+                  refId: B
+                  type: reduce
+              - refId: C
+                relativeTimeRange:
+                  from: 300
+                  to: 0
+                datasourceUid: __expr__
+                model:
+                  conditions:
+                      - evaluator:
+                          params:
+                              - 0
+                              - 0
+                          type: gt
+                        operator:
+                          type: and
+                        query:
+                          params: []
+                        reducer:
+                          params: []
+                          type: avg
+                        type: query
+                  datasource:
+                      name: Expression
+                      type: __expr__
+                      uid: __expr__
+                  expression: $B > 0
+                  intervalMs: 1000
+                  maxDataPoints: 43200
+                  refId: C
                   type: math
-            noDataState: Alerting
-            for: 60s
+            noDataState: OK
+            execErrState: Alerting
+            for: 10s
             annotations:
-              some_key: some_value
+              description: |-
+                  Pod has been in a non-ready state for longer than 5 minutes. Namespace: {{ "{{" }} $labels.namespace }}
+                  Pod: {{ "{{" }} $labels.pod }}
+              summary: Kubernetes Pod not healthy.
             labels:
-              team: sre_team_3             
+              pod_status: unhealthy
+            isPaused: false    
+      - orgId: 1
+        name: alerting
+        folder: alerting
+        interval: 10s
+        rules:
+          - uid: a4deda02-ccb1-4000-86f0-0f3544818e05
+            title: pod_probes
+            condition: C
+            data:
+              - refId: A
+                relativeTimeRange:
+                  from: 600
+                  to: 0
+                datasourceUid: PADF034D3042AB33C
+                model:
+                  editorMode: code
+                  expr: ( kube_pod_info{created_by_kind!="Job"} AND ON (pod, namespace) kube_pod_status_ready{condition="false"} == 1) > 0
+                  hide: false
+                  intervalMs: 1000
+                  legendFormat: __auto
+                  maxDataPoints: 43200
+                  range: true
+                  refId: A
+              - refId: B
+                relativeTimeRange:
+                  from: 600
+                  to: 0
+                datasourceUid: __expr__
+                model:
+                  conditions:
+                      - evaluator:
+                          params: []
+                          type: gt
+                        operator:
+                          type: and
+                        query:
+                          params:
+                              - B
+                        reducer:
+                          params: []
+                          type: last
+                        type: query
+                  datasource:
+                      type: __expr__
+                      uid: __expr__
+                  expression: A
+                  hide: false
+                  intervalMs: 1000
+                  maxDataPoints: 43200
+                  reducer: mean
+                  refId: B
+                  type: reduce
+              - refId: C
+                relativeTimeRange:
+                  from: 600
+                  to: 0
+                datasourceUid: __expr__
+                model:
+                  conditions:
+                      - evaluator:
+                          params:
+                              - 0
+                              - 0
+                          type: gt
+                        operator:
+                          type: and
+                        query:
+                          params: []
+                        reducer:
+                          params: []
+                          type: avg
+                        type: query
+                  datasource:
+                      name: Expression
+                      type: __expr__
+                      uid: __expr__
+                  expression: $B > 0
+                  intervalMs: 1000
+                  maxDataPoints: 43200
+                  refId: C
+                  type: math
+            noDataState: OK
+            execErrState: Alerting
+            for: 10s
+            annotations:
+              description: |-
+                 Pod has been in a non-ready state for longer than 10 minutes.
+                 Namespace: {{ "{{" }} $labels.namespace }}
+                 Pod: {{ "{{" }} $labels.pod }}
+              summary: Kubernetes Pod's probes are failing.
+            labels:
+              pod_status: prob
+            isPaused: false  
+
+
+  #         - uid: my_id_2
+  #           title: my_second_rule
+  #           condition: A
+  #           data:
+  #             - refId: A
+  #               datasourceUid: '-100'
+  #               model:
+  #                 conditions:
+  #                   - evaluator:
+  #                       params:
+  #                         - 3
+  #                       type: gt
+  #                     operator:
+  #                       type: and
+  #                     query:
+  #                       params:
+  #                         - A
+  #                     reducer:
+  #                       type: last
+  #                     type: query
+  #                 datasource:
+  #                   type: __expr__
+  #                   uid: '-100'
+  #                 expression: 1==0
+  #                 intervalMs: 1000
+  #                 maxDataPoints: 43200
+  #                 refId: A
+  #                 type: math
+  #           noDataState: Alerting
+  #           for: 60s
+  #           annotations:
+  #             some_key: some_value
+  #           labels:
+  #             team: sre_team_2
+  #     - orgId: 1
+  #       name: '{{ .Chart.Name }}_my_second_rule_group'
+  #       folder: my_second_folder
+  #       interval: 60s
+  #       rules:
+  #         - uid: my_id_3
+  #           title: my_third_rule
+  #           condition: A
+  #           data:
+  #             - refId: A
+  #               datasourceUid: '-100'
+  #               model:
+  #                 conditions:
+  #                   - evaluator:
+  #                       params:
+  #                         - 3
+  #                       type: gt
+  #                     operator:
+  #                       type: and
+  #                     query:
+  #                       params:
+  #                         - A
+  #                     reducer:
+  #                       type: last
+  #                     type: query
+  #                 datasource:
+  #                   type: __expr__
+  #                   uid: '-100'
+  #                 expression: 1==0
+  #                 intervalMs: 1000
+  #                 maxDataPoints: 43200
+  #                 refId: A
+  #                 type: math
+  #           noDataState: Alerting
+  #           for: 60s
+  #           annotations:
+  #             some_key: some_value
+  #           labels:
+  #             team: sre_team_3             
   contactpoints.yaml: |-
       apiVersion: 1
       contactPoints:

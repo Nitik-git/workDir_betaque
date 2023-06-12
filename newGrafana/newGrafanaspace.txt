@@ -1,4 +1,49 @@
 
 grafana admin password
 
-XH3n7qlYTejiAbRZ07KBBeIkTWQluAbrRgwebLSN
+PTIOknKHQ8WVSFVBb91Y7t4U2VZZaC5j1DlepIZe
+
+--------------------------
+datasourceuid
+PADF034D3042AB33C
+'100'
+--------------------------------
+
+link:
+https://community.grafana.com/t/grafana-alert-provisioning/81731
+
+
+
+
+
+
+
+
+
+
+
+data ME LAST refid k baad    ||  noDataState k uppr
+                  conditions:
+                    - evaluator:
+                        params:
+                          - 3
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                          - B
+                      reducer:
+                        type: last
+                      type: query
+                  datasource:
+                    type: __expr__
+                    uid: '-100'
+                  expression: 1==0
+                  intervalMs: 1000
+                  maxDataPoints: 43200
+                  refId: B
+                  type: math
+                  
+                  
+        
