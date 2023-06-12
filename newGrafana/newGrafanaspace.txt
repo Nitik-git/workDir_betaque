@@ -7,43 +7,55 @@ PTIOknKHQ8WVSFVBb91Y7t4U2VZZaC5j1DlepIZe
 datasourceuid
 PADF034D3042AB33C
 '100'
---------------------------------
+--------------------------
 
 link:
 https://community.grafana.com/t/grafana-alert-provisioning/81731
 
 
+--------------------------------------------
+ERROR
 
-
-
-
-
-
-
-
-
-data ME LAST refid k baad    ||  noDataState k uppr
-                  conditions:
-                    - evaluator:
-                        params:
-                          - 3
-                        type: gt
-                      operator:
-                        type: and
-                      query:
-                        params:
-                          - B
-                      reducer:
-                        type: last
-                      type: query
-                  datasource:
-                    type: __expr__
-                    uid: '-100'
-                  expression: 1==0
-                  intervalMs: 1000
-                  maxDataPoints: 43200
-                  refId: B
-                  type: math
+              description: |-
+                  Pod has been in a non-ready state for longer than 5 minutes. Namespace: {{ $labels.namespace }}
+                  Pod: {{ $labels.pod }}
                   
+undefined variable "$labels"
+
+SOL: The {{ "{{" }} block will be processed by helm and will produce {{ as a result with rest of the line not being altered and will get you the result you need.
+
+              description: |-
+                  Pod has been in a non-ready state for longer than 5 minutes. Namespace: {{ "{{" }} $labels.namespace }}
+                  Pod: {{ "{{" }} $labels.pod }}
+                  
+-----------------------------------------------
+
+
+    PROVISIONING =>
+  
+-----------------------------------------------------
+EXPORT ALERT RULE created through dashboard
+
+
+NAME    NAMESPACE       REVISION        UPDATED                                 STATUS          CHART                   APP VERSION
+graf    pg              40              2023-06-12 14:21:31.688034189 +0530 IST deployed        grafana-6.56.6          9.5.2      
+prom    pg              1               2023-06-08 14:46:42.05078235 +0530 IST  deployed        prometheus-22.6.1       v2.44.0    
+
+On this version you got the button to export or download the yaml of alert rule created from dashboard
+paste it to grafana-templating configmap and enjoy grafana alerts provisioning
+
+
+
+-----------------------------------------------------
+
+
+
+
+
+
+
+
+
+
                   
         
