@@ -1,2 +1,19 @@
 Changes on remote present & I WANT TO PUSH SOME NEW CODE
 link: https://www.cyberithub.com/solved-fatal-need-to-specify-how-to-reconcile-divergent-branches/
+
+
+-------------------------------------------------------------------
+ssh Setup to connect with git without password
+link:
+https://blog.corsego.com/aws-cloud9-github-ssh
+
+Steps:
+ 
+ssh-keygen -t ed25519 -C "yshmarov@gmail.com"
+eval `ssh-agent -s`
+ssh-add ~/.ssh/id_ed25519.pub
+Open the .pub key file..Copy everything from the file..Paste the key to github SSH creator, give it any name
+Check if you are connected to github. Console:  ssh -T git@github.com
+--------------------------------------------------------------------
+
+
