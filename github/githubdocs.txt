@@ -20,3 +20,4 @@ Check if you are connected to github. Console:  ssh -T git@github.com
 
 new changes for mypersonal
 new 
+check local conf
