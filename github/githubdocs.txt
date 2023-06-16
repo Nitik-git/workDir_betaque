@@ -18,4 +18,8 @@ Open the .pub key file..Copy everything from the file..Paste the key to github S
 Check if you are connected to github. Console:  ssh -T git@github.com
 --------------------------------------------------------------------
 
+nice docs for multiple ssh keys:
+https://gist.github.com/rahularity/86da20fe3858e6b311de068201d279e3
+https://gist.github.com/jexchan/2351996
+
 
