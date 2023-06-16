@@ -18,3 +18,5 @@ Open the .pub key file..Copy everything from the file..Paste the key to github S
 Check if you are connected to github. Console:  ssh -T git@github.com
 --------------------------------------------------------------------
 
+new changes for mypersonal
+new 
