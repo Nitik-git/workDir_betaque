@@ -5,15 +5,16 @@ link: https://www.cyberithub.com/solved-fatal-need-to-specify-how-to-reconcile-d
 -------------------------------------------------------------------
 ssh Setup to connect with git without password
 link:
+https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent
 https://blog.corsego.com/aws-cloud9-github-ssh
+
 
 Steps:
  
 ssh-keygen -t ed25519 -C "yshmarov@gmail.com"
 eval `ssh-agent -s`
-ssh-add ~/.ssh/id_ed25519.pub
+ssh-add ~/.ssh/id_ed25519
 Open the .pub key file..Copy everything from the file..Paste the key to github SSH creator, give it any name
 Check if you are connected to github. Console:  ssh -T git@github.com
 --------------------------------------------------------------------
-
 
