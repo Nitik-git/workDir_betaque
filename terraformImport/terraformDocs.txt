@@ -1,0 +1,22 @@
+
+--------------------------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------------------------
+
+
+
+
+--------------------------------------------------------------------------------------------------------------
+terraform import google_compute_instance.subnet1 instance-1
+
+
+Error: resource address "google_compute_instance.subnet1" does not exist in the configuration.
+
+Before importing this resource, please create its configuration in the root module. For example:
+
+resource "google_compute_instance" "subnet1" {
+  # (resource arguments)
+}
+
+Without root module resource cannot import
+--------------------------------------------------------------------------------------------------------------

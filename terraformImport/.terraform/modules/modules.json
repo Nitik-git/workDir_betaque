@@ -1,1 +1,1 @@
-{"Modules":[{"Key":"","Source":"","Dir":"."},{"Key":"requestor-vpc","Source":"./modules","Dir":"modules"}]}
+{"Modules":[{"Key":"test2-import-vpc","Source":"./modules/vpc","Dir":"modules/vpc"},{"Key":"instances","Source":"./modules/instances","Dir":"modules/instances"},{"Key":"","Source":"","Dir":"."},{"Key":"requestor-vpc","Source":"./modules/vpc","Dir":"modules/vpc"}]}

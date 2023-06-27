@@ -19,5 +19,19 @@ variable "subnet-region" {
   type        = list(string)
 }
 
-
+variable "machine-type" {
+  description = "Name of the machine-type"
+  type        = string
+}
+variable "instance-zone" {
+  description = "Zone of instance"
+  type        = string
+}
+variable "instance-image" {
+  description = "Image of the instance"
+  type        = string
+}
+variable "image-family" {
+  type = string
+}
 
