@@ -35,3 +35,7 @@ variable "image-family" {
   type = string
 }
 
+variable "import-vpc-name" {
+  description = "The name of the vpc_network being created"
+  type = string
+}

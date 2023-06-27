@@ -1,4 +1,5 @@
 vpc-name                     = "requestor-global-vpc"
+import-vpc-name              = "test3-import"
 subnet-count                 = 1
 subnet-name                  = ["subnet1", "subnet2", "subnet3"]
 subnet-internal-ip           = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]

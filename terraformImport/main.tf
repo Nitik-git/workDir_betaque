@@ -1,4 +1,4 @@
-module "requestor-vpc" {
+module "requestor-vpc"{
   source                       = "./modules/vpc"
   vpc-name                     = var.vpc-name
   subnet-count                 = var.subnet-count
@@ -7,7 +7,7 @@ module "requestor-vpc" {
   subnet-region                = var.subnet-region
 }
 
-module "instances" {
+module "instances"{
   source          = "./modules/instances"
   machine-type    = var.machine-type
   instance-zone   = var.instance-zone
@@ -18,16 +18,21 @@ module "instances" {
 
 }
 
-
+module "test3-import"{
+  source                  = "./modules/vpc"
+  import-vpc-name         = var.import-vpc-name
+}
 
 # Resolved : Before importing this resource, please create its configuration in the root module.
-resource "google_compute_network" "vpc_importnetwork" {
+resource "google_compute_network" "vpc_importnetwork"{
   name                    = "test-import-vpc"
   auto_create_subnetworks = false
 }
 
-resource "google_compute_network" "test2-import-vpc" {
+resource "google_compute_network" "test2-import-vpc"{
   name                    = "test2-import-vpc"
   auto_create_subnetworks = false
 }
+
+
 
