@@ -1,0 +1,86 @@
+name: common-qa-workflow
+
+on:
+  push:
+    branches: 
+      - reset-test-branch
+    # paths:
+    #   - api/**/**
+    #   - '!api/k8s/**'
+    #   - assessment/**/**
+    #   - '!assessment/k8s/**'
+    #   - messaging/**/**
+    #   - '!messaging/k8s/**'
+    #   - workers/**/**
+    #   - '!workers/assessment-due/k8s/**'
+    #   - '!workers/metric-aggregate/k8s/**'
+    #   - '!workers/metric-calculate/k8s/**' 
+    # tags:
+    #   - reset-qa-*
+
+jobs:
+  services_list:
+    runs-on: ubuntu
+    outputs:
+      matrix:  ${{steps.createarray.outputs.matrix}}
+    steps:
+      - name: Checkout for Push
+        if: ${{ startsWith(github.ref, 'refs/heads/') }}
+        uses: actions/checkout@v2
+        with:
+           fetch-depth: 0 
+           ref: ${{ github.event.pull_request.head.ref }}
+
+      - name: Checkout for Tag
+        if: ${{ startsWith(github.ref, 'refs/tags/') }}
+        uses: actions/checkout@v2
+        with:
+           fetch-depth: 0
+
+      - name: Create Files Array
+        id: createarray
+        run: |-
+          event=$(echo "$GITHUB_REF" | cut -d'/' -f 2)
+          if [ "${event}" = "heads" ]; then
+            echo "${{ github.event.pull_request.head.ref }}"
+            SERVICES=`git diff-tree --no-commit-id --name-only -r HEAD HEAD^^ | awk -F/ '{ print $1}' | uniq | sed -n -e '/api/p' -e '/assessment/p'  -e '/data-processing/p' -e '/framework/p' -e '/messaging/p' -e '/storage/p' -e '/user-auth-permission/p' -e '/visualization/p'` 
+            WORKER=`git diff-tree --no-commit-id --name-only -r HEAD HEAD^^ | awk -F/ '{ print $1"/"$2}' | uniq | sed -n -e '/worker/p'`
+            svcArray=(`echo ${SERVICES} ${WORKER} `)
+            sudo apt-get update && sudo apt-get install jo
+            echo "matrix=$(jo -a "${svcArray[@]}" )" >> $GITHUB_OUTPUT
+          else
+            COMMIT_BRANCH=`git log --oneline --merges | grep  "Merge pull " | sed -n 's/.*\/\([^ ]*\)\( .*\)\{0,1\}/\1/p' | awk 'NR==1 {print}'`
+            git fetch origin master && git checkout master && git fetch origin $COMMIT_BRANCH && git checkout $COMMIT_BRANCH
+            SERVICES=`git diff --name-only --no-commit-id master..$COMMIT_BRANCH | awk -F/ '{ print $1}' | uniq | sed -n -e '/api/p' -e '/assessment/p'  -e '/data-processing/p' -e '/framework/p' -e '/messaging/p' -e '/storage/p' -e '/user-auth-permission/p' -e '/visualization/p'` 
+            WORKER=`git diff-tree --no-commit-id --name-only -r HEAD HEAD^^ | awk -F/ '{ print $1"/"$2}' | uniq | sed -n -e '/worker/p'`
+            svcArray=(`echo ${SERVICES} ${WORKER} `)
+            sudo apt-get update && sudo apt-get install jo
+            echo "matrix=$(jo -a "${svcArray[@]}" )" >> $GITHUB_OUTPUT
+          fi
+
+  build-push-gcr:
+    needs: services_list
+    runs-on: ubuntu
+    strategy:
+      matrix:
+        target: ${{ fromJSON(needs.services_list.outputs.matrix) }}
+    steps:
+    - name: Checkout on Tag
+      if: ${{ startsWith(github.ref, 'refs/tags/') }}
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+        ref: master
+
+    - name: Checkout on Push
+      if: ${{ startsWith(github.ref, 'refs/heads/') }}
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: Extract tag location
+      run: |-
+        export SVC_VARIABLE=`echo ${{ matrix.target }}`
+        SVCS=$(basename $SVC_VARIABLE)
+        echo "workersvc=$SVCS" >> "$GITHUB_ENV"
+
