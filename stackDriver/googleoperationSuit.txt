@@ -1,0 +1,178 @@
+
+'kubernetes.io/container/cpu/limit_cores'
+'kubernetes.io/container/cpu/limit_utilization'
+
+
+
+
+fetch k8s_container
+# | { metric 'kubernetes.io/container/cpu/limit_utilization'
+#   ; metric 'kubernetes.io/container/cpu/limit_cores'}
+| metric 'kubernetes.io/container/cpu/limit_utilization'
+# |join | div
+# | mul(100)
+| filter (resource.pod_name == 'api-557cfcc596-86599')
+| every 5m
+
+
+ratio   ==   outerjoin = 0 | div
+
+fetch k8s_container
+| { metric 'kubernetes.io/container/cpu/limit_utilization'
+  ; metric 'kubernetes.io/container/cpu/limit_cores'}
+|ratio
+| mul(100)
+| filter (resource.pod_name == 'rabbitmq-c46fff5d8-kppwn')
+| every 5m
+
+
+
+Datadog is a monitoring and analytics tool for information technology (IT) and DevOps teams that can be used to determine performance metrics as well as event monitoring for infrastructure and cloud services.
+
+kubectl get pod --all-namespaces | awk '{print $3}' | awk -F/ '{s+=$1} END {print s}' 
+kubectl get pods --all-namespaces -o wide --field-selector spec.nodeName=gke-k8s-cluster-prod-proof-services-140269b1-jxtt  
+
+sudo systemctl stop datadog-agent
+
+-----------------
+datadog priciple
+ddgci-499594d41371fbdc1d3d@datadog-gci-sts-us5-prod.iam.gserviceaccount.com
+--------------
+
+#######################################################
+
+{
+fetch k8s_container::kubernetes.io/container/cpu/core_usage_time
+| filter
+    (resource.pod_name == 'api-86844fdd88-mfq9g')
+| every 5m
+| align rate(1m)
+;
+fetch k8s_container::kubernetes.io/container/cpu/request_utilization
+| filter
+    (resource.pod_name == 'api-86844fdd88-mfq9g')
+}
+| join | div
+| mul(100)
+
+
+
+
+
+#######################################
+#######################################33
+{
+fetch k8s_container::kubernetes.io/container/cpu/core_usage_time
+| filter
+    (resource.pod_name == 'api-86844fdd88-mfq9g')
+| align rate(1s)
+;
+fetch k8s_container::kubernetes.io/container/cpu/limit_cores
+| filter
+    (resource.pod_name == 'api-86844fdd88-mfq9g')
+}
+| join | div
+| mul(100)
+| condition gt(val(), 75)
+
+
+
+
+
+
+
+
+
+
+
+
+``````````````````````````````````````````````
+{
+fetch k8s_container::kubernetes.io/container/cpu/core_usage_time
+| filter
+    (resource.cluster_name == 'k8s-cluster-staging-proof'
+     && resource.namespace_name == 'catalyst-staging-backend'
+     && resource.pod_name =~ '^api.*' )
+| align rate(1s)
+;
+fetch k8s_container::kubernetes.io/container/cpu/limit_cores
+| filter
+    (resource.cluster_name == 'k8s-cluster-staging-proof'
+     && resource.namespace_name == 'catalyst-staging-backend'
+     && resource.pod_name =~ '^api.*' )
+}
+| join | div
+| mul(100)
+| every 1s
+| condition val() > cast_units(18, '%')
+| window 1s
+``````````````````````````````````````````````````````
+```````````````````````````````````````````````````````
+## CPU UTILIZATION EXCEEDED
+**Summary:**
+Pod "${resource.label.pod_name}" in "${resource.label.namespace_name}" namespace has been using more than 75% of cpu.
+**Additional Info:**
+- Pod_Name: ${resource.label.pod_name}
+- Namespace: ${resource.label.namespace_name}
+- Project_Id: ${resource.label.project_id}
+- Location: ${resource.label.location}
+- Cluster_Name: ${resource.label.cluster_name}
+```````````````````````````````````````````````````````````
+
+
+
+
+
+
+
+{
+fetch k8s_container::kubernetes.io/container/memory/used_bytes
+| filter metric.memory_type == 'non-evictable'
+| group_by 10s, [value_used_bytes_mean: mean(value.used_bytes)]
+| every 10s
+;
+fetch k8s_container::kubernetes.io/container/memory/limit_bytes
+}
+| window 10s
+| filter
+    (resource.cluster_name == 'k8s-cluster-staging-proof'
+     && resource.namespace_name == 'catalyst-staging-backend'
+     && resource.pod_name =~ '^api.*' )
+| join | div | mul 100
+| condition val() > cast_units(7500, '%')
+
+``````````````````````````````````````````````````````````````````````````````````````working````````````````````````````````````````````````````````````````````````````
+CPU UTILIZATION EXCEEDED
+
+Summary:
+
+Pod "${resource.label.pod_name}" in "${resource.label.namespace_name}" namespace has been using more than 75% of cpu.
+
+Additional Info:
+- Pod_Name:         ${resource.label.pod_name}
+- Namespace:       ${resource.label.namespace_name}
+- Project_Id:           ${resource.label.project_id}
+- Location:             ${resource.label.location}
+- Cluster_Name:   ${resource.label.cluster_name}
+
+
+
+{
+fetch k8s_container::kubernetes.io/container/cpu/core_usage_time
+| filter
+    (resource.cluster_name == 'k8s-cluster-staging-proof'
+     && resource.namespace_name == 'catalyst-staging-backend'
+     && resource.pod_name =~ '^data-processing.*' )
+| align rate(10s)
+| every 10s
+;
+fetch k8s_container::kubernetes.io/container/cpu/limit_cores
+| filter
+    (resource.cluster_name == 'k8s-cluster-staging-proof'
+     && resource.namespace_name == 'catalyst-staging-backend'
+     && resource.pod_name =~ '^data-processing.*' )
+}
+| window 50s
+| join | div | mul 100
+| condition val() > cast_units(600, '%')
+
