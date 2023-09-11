@@ -176,3 +176,56 @@ fetch k8s_container::kubernetes.io/container/cpu/limit_cores
 | join | div | mul 100
 | condition val() > cast_units(600, '%')
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--------------------------------
+free cpu query
+
+{
+fetch k8s_node::kubernetes.io/node/cpu/allocatable_utilization
+| filter
+    (resource.node_name == 'gke-k8s-cluster-staging-proo-services-c90c93a1-jooq')
+| every 5m
+| align rate(1m)
+;
+fetch k8s_node::kubernetes.io/node/cpu/allocatable_cores
+| filter
+    (resource.node_name == 'gke-k8s-cluster-staging-proo-services-c90c93a1-jooq')
+}
+| ratio
+| mul(100)
+
+
+
+
+
+
+| group_by 1m,
+    [value_allocatable_utilization_mean: mean(value.allocatable_utilization)]
+| every 1m
+
+| group_by 1m, [value_allocatable_cores_mean: mean(value.allocatable_cores)]
+| every 1m
+
+
+
+fetch k8s_node 
+| {
+     metric 'kubernetes.io/node/cpu/allocatable_cores' ; 
+     metric kubernetes.io/node/cpu/allocatable_utilization
+  }
+| outer_join 0
+| filter resource.node_name == "gke-k8s-cluster-staging-proo-services-c90c93a1-jooq"
+| value [ var: sub(t_0.value.allocatable_cores,t_1.value.allocatable_utilization)]
